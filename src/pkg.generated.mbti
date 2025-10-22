@@ -1,0 +1,265 @@
+// Generated using `moon info`, DON'T EDIT IT
+package "0Ayachi0/openai_sdk"
+
+// Values
+const ASSISTANT_ROLE : String = "assistant"
+
+const DALL_E_2 : String = "dall-e-2"
+
+const DALL_E_3 : String = "dall-e-3"
+
+const GPT_3_5_TURBO : String = "gpt-3.5-turbo"
+
+const GPT_4 : String = "gpt-4"
+
+const GPT_4O : String = "gpt-4o"
+
+const GPT_4O_MINI : String = "gpt-4o-mini"
+
+const GPT_4_TURBO : String = "gpt-4-turbo"
+
+const SYSTEM_ROLE : String = "system"
+
+const TOOL_ROLE : String = "tool"
+
+const USER_ROLE : String = "user"
+
+fn apply_runtime_config(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), Array[String]) -> ((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String))
+
+fn assistant_message(String) -> (String, String)
+
+async fn chat_completion(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), Array[(String, String)], String) -> Result[(String, String, Int, String, Array[(Int, (String, String), String, (String, String, String, String)?)], (Int, Int, Int)), (String, String, Int)]
+
+async fn check_network_status() -> Unit
+
+async fn demo_basic_conversation() -> Unit
+
+async fn demo_multi_turn_conversation() -> Unit
+
+async fn demo_streaming_response() -> Unit
+
+async fn demo_structured_output() -> Unit
+
+async fn demo_tool_calling() -> Unit
+
+fn enable_debug(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String))) -> ((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String))
+
+async fn example_basic_chat_with_env_key(String) -> Result[String, (String, String, Int)]
+
+async fn example_basic_chat_with_key() -> Result[String, (String, String, Int)]
+
+fn example_client_configuration() -> ((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String))
+
+async fn example_complete_workflow() -> Result[String, (String, String, Int)]
+
+async fn example_different_models() -> Result[(String, String), (String, String, Int)]
+
+async fn example_error_handling() -> String
+
+fn example_message_creation() -> ((String, String), (String, String), (String, String))
+
+async fn example_multi_turn_chat() -> Result[(String, String, Int, String, Array[(Int, (String, String), String, (String, String, String, String)?)], (Int, Int, Int)), (String, String, Int)]
+
+async fn example_multi_turn_tool_conversation() -> Result[(String, (String, String, String, String)?, Array[(String, String)]), (String, String, Int)]
+
+fn example_network_demo() -> String
+
+async fn example_performance_test() -> Result[String, (String, String, Int)]
+
+async fn example_streaming_chat() -> Result[String, (String, String, Int)]
+
+async fn example_structured_output() -> Result[String, (String, String, Int)]
+
+async fn example_tool_calling() -> Result[(String, (String, String, String, String)?), (String, String, Int)]
+
+async fn example_tool_result_handling() -> Result[String, (String, String, Int)]
+
+fn extract_choice_content(String) -> String
+
+fn extract_choice_message_content(String) -> String?
+
+fn extract_json_field(String, String) -> String?
+
+fn extract_location_from_question(String) -> String?
+
+fn extract_substring(String, Int, Int) -> String
+
+fn extract_usage_field(String, String) -> String?
+
+async fn fetch_weather_for_location(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), String) -> Result[String, String]
+
+fn find_substring(String, String) -> Int?
+
+fn find_substring_from(String, String, Int) -> Int?
+
+fn function_call(String, String) -> (String, String)
+
+fn get_error_message((String, String, Int)) -> String
+
+fn go_assistant_message(String) -> (String, String)
+
+async fn go_chat_completions_create(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), String, Array[(String, String)]) -> Result[(String, String, Int, String, Array[(Int, (String, String), String, (String, String, String, String)?)], (Int, Int, Int)), (String, String, Int)]
+
+async fn go_chat_completions_create_stream(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), String, Array[(String, String)]) -> Result[Array[(String, String, Int, String, Array[(Int, (String, String)?, String, (String, String, String, String)?)], (Int, Int, Int)?)], (String, String, Int)]
+
+async fn go_chat_completions_create_structured(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), String, Array[(String, String)], (String, String, String)) -> Result[(String, String, Int, String, Array[(Int, (String, String), String, (String, String, String, String)?)], (Int, Int, Int)), (String, String, Int)]
+
+async fn go_chat_completions_create_with_tools(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), String, Array[(String, String)], Array[String]) -> Result[(String, String, Int, String, Array[(Int, (String, String), String, (String, String, String, String)?)], (Int, Int, Int)), (String, String, Int)]
+
+async fn go_chat_completions_new(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), String, Array[(String, String)]) -> Result[(String, String, Int, String, Array[(Int, (String, String), String, (String, String, String, String)?)], (Int, Int, Int)), (String, String, Int)]
+
+fn go_new_client(String) -> ((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String))
+
+fn go_new_client_with_config(String, String, Int, Int, String, Bool) -> ((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String))
+
+fn go_response_format_json() -> (String, String, String)
+
+fn go_response_format_json_schema(String, String) -> (String, String, String)
+
+fn go_system_message(String) -> (String, String)
+
+fn go_user_message(String) -> (String, String)
+
+fn go_with_base_url(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), String) -> ((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String))
+
+fn go_with_organization(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), String) -> ((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String))
+
+fn go_with_project(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), String) -> ((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String))
+
+fn go_with_retries(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), Int) -> ((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String))
+
+fn go_with_timeout(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), Int) -> ((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String))
+
+async fn handle_tool_result(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), Array[(String, String)], (String, String, String, String), String) -> Result[String, (String, String, Int)]
+
+fn has_arg_case1(Array[String]) -> Bool
+
+fn headers_map_to_array(Map[String, String]) -> Array[String]
+
+async fn http_post((String, Int, Int, String), (String, String, Array[String], String)) -> Result[(Int, Array[String], String), (String, Int, String)]
+
+fn int_to_string(Int) -> String
+
+fn is_retryable_error((String, String, Int)) -> Bool
+
+fn is_success_response((Int, Array[String], String)) -> Bool
+
+fn json_deserialize(String) -> Result[String, String]
+
+fn json_serialize(String) -> String
+
+async fn main_demo() -> Unit
+
+async fn main_from_args() -> Unit
+
+async fn multi_turn_tool_chat(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), Array[(String, String)], Array[String]) -> Result[(String, (String, String, String, String)?, Array[(String, String)]), (String, String, Int)]
+
+fn new_client(String) -> ((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String))
+
+fn new_client_with_config(String, String, Int, Int, String, Bool) -> ((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String))
+
+fn new_http_client(String) -> (String, Int, Int, String)
+
+fn new_http_client_with_config(String, Int, Int, String) -> (String, Int, Int, String)
+
+fn new_http_request(String, String, Array[String], String) -> (String, String, Array[String], String)
+
+fn new_real_http_client(String) -> (String, Int, Int, String)
+
+fn parse_api_key_from_args(Array[String]) -> String?
+
+fn parse_http_error((String, Int, String)) -> String
+
+fn parse_int_flag_from_args(Array[String], String) -> Int?
+
+fn parse_string_flag_from_args(Array[String], String) -> String?
+
+async fn perform_http_request(String, String, Array[String], String, Int) -> Result[(Int, Array[String], String), (String, Int, String)]
+
+async fn perform_real_http_request(String, String, Array[String], String, Int) -> Result[(Int, Array[String], String), (String, Int, String)]
+
+async fn run_main_demo() -> Unit
+
+async fn send_openai_request((String, Int, Int, String), String, String, String, Array[String]) -> Result[(Int, Array[String], String), (String, Int, String)]
+
+fn set_organization(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), String) -> ((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String))
+
+fn set_project(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), String) -> ((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String))
+
+fn set_retries(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), Int) -> ((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String))
+
+fn set_timeout(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), Int) -> ((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String))
+
+async fn simple_chat(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), String) -> Result[String, (String, String, Int)]
+
+async fn stream_chat(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), String) -> Result[String, (String, String, Int)]
+
+async fn stream_chat_completion(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), Array[(String, String)], String) -> Result[Array[(String, String, Int, String, Array[(Int, (String, String)?, String, (String, String, String, String)?)], (Int, Int, Int)?)], (String, String, Int)]
+
+fn string_substring_from(String, Int) -> String
+
+fn string_to_int(String) -> Int
+
+async fn structured_chat(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), String, (String, String, String)) -> Result[String, (String, String, Int)]
+
+async fn structured_chat_completion(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), Array[(String, String)], String, (String, String, String)) -> Result[(String, String, Int, String, Array[(Int, (String, String), String, (String, String, String, String)?)], (Int, Int, Int)), (String, String, Int)]
+
+fn system_message(String) -> (String, String)
+
+async fn test_main_function() -> Unit
+
+fn tool_call(String, String, String) -> (String, String, String, String)
+
+async fn tool_chat(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), String, Array[String]) -> Result[(String, (String, String, String, String)?), (String, String, Int)]
+
+async fn tool_chat_completion(((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)), Array[(String, String)], String, Array[String]) -> Result[(String, String, Int, String, Array[(Int, (String, String), String, (String, String, String, String)?)], (Int, Int, Int)), (String, String, Int)]
+
+fn tool_message(String, String) -> (String, String, String)
+
+fn trim(String) -> String
+
+fn user_message(String) -> (String, String)
+
+async fn wait_before_retry(Int) -> Int
+
+// Errors
+
+// Types and methods
+
+// Type aliases
+pub typealias (String, String, Int, String, Array[(Int, (String, String), String, (String, String, String, String)?)], (Int, Int, Int)) as ChatCompletionResponse
+
+pub typealias (Int, (String, String), String, (String, String, String, String)?) as Choice
+
+pub typealias (String, String) as FunctionCall
+
+pub typealias (String, Int, Int, String) as HttpClient
+
+pub typealias (String, Int, String) as HttpError
+
+pub typealias (String, String, Array[String], String) as HttpRequest
+
+pub typealias (Int, Array[String], String) as HttpResponse
+
+pub typealias (String, String) as Message
+
+pub typealias ((String, String, Int, Int, String, Bool, String?, String?), (String, Int, Int, String)) as OpenAIClient
+
+pub typealias (String, String, Int, Int, String, Bool, String?, String?) as OpenAIConfig
+
+pub typealias (String, String, Int) as OpenAIError
+
+pub typealias (String, String, Int, String, Array[(Int, (String, String)?, String, (String, String, String, String)?)], (Int, Int, Int)?) as StreamChatCompletionResponse
+
+pub typealias (Int, (String, String)?, String, (String, String, String, String)?) as StreamChoice
+
+pub typealias (String, String, String) as StructuredOutput
+
+pub typealias (String, String, String, String) as ToolCall
+
+pub typealias (String, String, String) as ToolMessage
+
+pub typealias (Int, Int, Int) as Usage
+
+// Traits
+

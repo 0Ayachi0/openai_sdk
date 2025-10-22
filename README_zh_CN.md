@@ -1,6 +1,6 @@
 # OpenAI SDK for MoonBit
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/0Ayachi0/openai_sdk/ci.yml)](https://github.com/0Ayachi0/openai_sdk/actions) [![codecov](https://codecov.io/gh/0Ayachi0/openai_sdk/branch/main/graph/badge.svg)](https://codecov.io/gh/0Ayachi0/openai_sdk)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/0Ayachi0/openai_sdk/ci.yml)](https://github.com/0Ayachi0/openai_sdk/actions) 
 
 [English](README.md) | 简体中文
 
@@ -17,7 +17,7 @@
 • 📈 **生产就绪** – 完整的配置管理和环境支持  
 • 🔍 **类型安全** – 具有健壮类型系统的完整错误类型  
 • 📦 **网络集成** – 准备好真实网络库集成  
-• 🧪 **测试覆盖** – 全面的测试套件，49个测试全部通过  
+• 🧪 **测试覆盖** – 全面的测试套件，25个测试全部通过  
 • 📚 **文档完善** – 详细的使用示例和 API 参考  
 
 ## 📥 安装
@@ -91,8 +91,9 @@ match tool_result {
         // 处理工具响应
         println("消息: " + message)
         match tool_call {
-            Some((id, type, function)) => {
-                println("调用工具: " + function)
+            Some((id, type, function_name, arguments)) => {
+                println("调用工具: " + function_name)
+                println("参数: " + arguments)
             }
             None => {
                 println("未调用工具")
@@ -104,9 +105,10 @@ match tool_result {
     }
 }
 
-// 结构化输出
-let format = ("json", "object", "{\"name\": \"string\", \"age\": \"number\"}")
-let struct_result = structured_chat(client, "Extract name and age from: John is 25 years old", format)
+// 结构化输出（json_schema，严格校验，禁止额外字段）
+let schema = "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"age\":{\"type\":\"integer\"}},\"required\":[\"name\",\"age\"],\"additionalProperties\":false}"
+let format = ("json_schema", schema, "Person")
+let struct_result = structured_chat(client, "Extract the name and age from: John is 25 years old.", format)
 match struct_result {
     Ok(response) => {
         // 处理结构化响应
@@ -125,7 +127,7 @@ match struct_result {
 // 创建具有自定义配置的客户端
 let client = new_client_with_config(
     "your-api-key",           // API 密钥
-    "https://api.openai.com", // 基础 URL
+    "https://api.openai.com/v1", // 基础 URL
     30,                       // 超时秒数
     3,                        // 最大重试次数
     "MoonBit-SDK/1.0",       // 用户代理
@@ -133,7 +135,7 @@ let client = new_client_with_config(
 )
 
 // 创建 HTTP 客户端进行自定义请求
-let http_client = new_http_client("https://api.openai.com")
+let http_client = new_http_client("https://api.openai.com/v1")
 let request = new_http_request(
     "POST",
     "https://api.openai.com/v1/chat/completions",
@@ -153,6 +155,21 @@ match http_result {
         // 处理 HTTP 错误
     }
 }
+```
+
+#### 更多运行时配置辅助函数
+
+```moonbit
+// 开启调试日志（打印关键请求/响应片段）
+let client = enable_debug(client)
+
+// 运行时更新超时与重试次数
+let client = set_timeout(client, 60)
+let client = set_retries(client, 5)
+
+// 可选：设置组织与项目（请求头 OpenAI-Organization / OpenAI-Project）
+let client = set_organization(client, "org_123")
+let client = set_project(client, "proj_123")
 ```
 
 ### 🔄 错误处理
@@ -227,7 +244,9 @@ match result {
         if choices.length() > 0 {
             let choice = choices.get(0)
             match choice {
-                Some((index, message, finish_reason)) => {
+                Some(c) => {
+                    let message = c.1
+                    let finish_reason = c.2
                     let (role, content) = message
                     println("助手: " + content)
                     println("结束原因: " + finish_reason)
@@ -295,7 +314,7 @@ match result {
 pub typealias (String, String, Int) as OpenAIError  // (error_type, message, status_code)
 
 // HTTP 错误类型
-pub typealias (String, String, String) as HttpError  // (error_type, status, message)
+pub typealias (String, Int, String) as HttpError  // (error_type, status_code, message)
 ```
 
 ### 核心类型
@@ -303,8 +322,8 @@ pub typealias (String, String, String) as HttpError  // (error_type, status, mes
 // 消息类型
 pub typealias (String, String) as Message  // (role, content)
 
-// 选择类型
-pub typealias (Int, Message, String) as Choice  // (index, message, finish_reason)
+// 选择类型（带可选 tool_calls）
+pub typealias (Int, Message, String, Option[ToolCall]) as Choice  // (index, message, finish_reason, tool_calls)
 
 // 使用统计
 pub typealias (Int, Int, Int) as Usage  // (prompt_tokens, completion_tokens, total_tokens)
@@ -313,10 +332,10 @@ pub typealias (Int, Int, Int) as Usage  // (prompt_tokens, completion_tokens, to
 pub typealias (String, String, Int, String, Array[Choice], Usage) as ChatCompletionResponse
 
 // 工具调用类型
-pub typealias (String, String, String) as ToolCall  // (id, type, function)
+pub typealias (String, String, String, String) as ToolCall  // (id, type, function_name, arguments)
 
 // HTTP 客户端和请求类型
-pub typealias String as HttpClient
+pub typealias (String, Int, Int, String) as HttpClient  // (base_url, timeout, retries, user_agent)
 pub typealias (String, String, Array[String], String) as HttpRequest  // (method, url, headers, body)
 ```
 
@@ -345,8 +364,9 @@ pub typealias (String, String, Array[String], String) as HttpRequest  // (method
 
 ### 工具函数
 - `check_network_status()` - 检查网络连接状态
-- `get_api_key_from_env()` - 从环境变量获取 API 密钥
-- `validate_api_key(api_key)` - 验证 API 密钥格式
+- `json_serialize(value)` - 字符串 JSON 安全序列化
+- `json_deserialize(json)` - JSON 合法性校验与规范化
+- `extract_json_field(json, field)` - 提取顶层字段
 
 ## 📈 性能特征
 
@@ -393,7 +413,7 @@ pub typealias (String, String, Array[String], String) as HttpRequest  // (method
 
 ## 🧪 测试覆盖
 
-项目包含全面的测试用例，**57个测试全部通过**：
+项目包含全面的测试用例，**25个测试全部通过**：
 - ✅ 基本聊天完成功能测试
 - ✅ 流式响应处理测试
 - ✅ 工具调用和函数执行测试
@@ -404,47 +424,118 @@ pub typealias (String, String, Array[String], String) as HttpRequest  // (method
 - ✅ 配置和客户端管理测试
 
 ### 测试统计
-- **总测试数**: 57 个测试
-- **通过率**: 100% (57/57 通过)
-- **测试代码行数**: 1,497 行
+- **总测试数**: 25 个测试
+- **通过率**: 100% (25/25 通过)
+- **测试代码行数**: 605 行
 - **错误路径覆盖**: 全面的错误处理测试
-- **网络模拟**: 完整的模拟网络实现
+- **网络实现**: 覆盖真实网络与模拟逻辑
 
 ## 🚀 构建和运行
 
 ```bash
-# 构建项目
+# Linux/macOS
 moon build
-
-# 运行测试
 moon test
-
-# 运行主演示
 moon run src/main.mbt
-
-# 生成覆盖率报告
 moon coverage report -f cobertura -o coverage.xml
+
+# Windows（命令需要加 --target native）
+moon build --target native
+moon test --target native
+moon run --target native src/main.mbt
 ```
+
+### 运行 5 个演示用例（src/main.mbt）
+
+- **传入 API Key**：使用 `--api-key VALUE`、`--key VALUE` 或 `-k VALUE`（也支持 `--api-key=VALUE`、`--key=VALUE`、`-k=VALUE`）。
+- **可选运行参数**：`--base-url VALUE`、`--timeout VALUE`（秒）、`--retries VALUE`。
+- **参数分隔符**：通过 `moon run` 传入程序参数时，请在参数前添加 `--`。
+
+运行全部 5 个 Case：
+
+```bash
+# Linux/macOS
+moon run src/main.mbt -- --api-key sk-your-api-key
+
+# Windows
+moon run --target native src/main.mbt -- --api-key sk-your-api-key
+```
+
+仅运行 Case 1（基础对话）：
+
+```bash
+# Linux/macOS
+moon run src/main.mbt -- --api-key sk-your-api-key --case=1
+
+# Windows
+moon run --target native src/main.mbt -- --api-key sk-your-api-key --case=1
+```
+
+- **Case 1**：基础对话（`demo_basic_conversation`）
+- **Case 2**：流式响应（`demo_streaming_response`）
+- **Case 3**：工具调用与结果回传（`demo_tool_calling`）
+- **Case 4**：结构化输出（`demo_structured_output`）
+- **Case 5**：多轮对话（`demo_multi_turn_conversation`）
 
 ## 📦 依赖
 
-- `fangyinc/net: 0.1.0`: 用于 HTTP 请求的网络库
+- `moonbitlang/async: 0.9.0`: 异步 HTTP 与超时支持
 - `moonbitlang/core`: 提供基础数据结构支持
 
 ## 🌐 网络集成
 
 ### 当前状态
-- **网络库**: `fangyinc/net: 0.1.0` 已集成
-- **实现方式**: 开发环境使用模拟网络实现
-- **生产就绪**: 准备好真实网络集成
+- **网络库**: `moonbitlang/async: 0.9.0` 正在使用
+- **实现方式**: 基于 async/http 的真实 HTTP，请求支持超时与重试
+- **生产就绪**: 可用于生产的真实网络集成
 
 ### 生产部署
 ```moonbit
-// 将模拟实现替换为真实网络调用
-fn perform_real_http_request(host: String, port: Int, request: String, timeout: Int) -> Result[String, HttpError] {
-    // 使用 fangyinc/net 库进行真实 HTTP 请求
-    // 所有 API 接口都已完全实现
+// 使用 async/http 进行真实 HTTP 请求
+fn perform_real_http_request(
+    http_method: String,
+    url: String,
+    headers: Array[String],
+    body: String,
+    timeout: Int
+) -> Result[HttpResponse, HttpError] {
+    // 基于 moonbitlang/async 实现真实 HTTP 与超时
 }
+```
+
+### Go 风格适配器（可选）
+
+为偏好 Go SDK 习惯的用户提供 Go 风格包装。
+
+```moonbit
+// 创建客户端并使用 Go 风格的配置帮助函数
+let client = go_new_client("your-api-key")
+let client = go_with_base_url(client, "https://api.openai.com/v1")
+let client = go_with_timeout(client, 60)
+let client = go_with_retries(client, 5)
+let client = go_with_organization(client, "org_123")
+let client = go_with_project(client, "proj_123")
+
+// 构造消息
+let messages = [
+  go_system_message("You are helpful."),
+  go_user_message("Hello")
+]
+
+// 非流式聊天
+let res = go_chat_completions_create(client, GPT_4O, messages)
+
+// 流式聊天
+let stream_res = go_chat_completions_create_stream(client, GPT_4O, messages)
+
+// 带工具
+let tools = ["get_weather"]
+let tool_res = go_chat_completions_create_with_tools(client, GPT_4O, messages, tools)
+
+// 结构化输出
+let schema = "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"}},\"required\":[\"name\"]}"
+let fmt = go_response_format_json_schema(schema, "Person")
+let structured_res = go_chat_completions_create_structured(client, GPT_4O, messages, fmt)
 ```
 
 ## 🔧 配置
@@ -495,9 +586,10 @@ let (response, tool_call) = tool_chat(client, "What's the weather like?", tools)
 
 ### 用例 4: 结构化输出
 ```moonbit
-let format = ("json", "object", "{\"name\": \"string\", \"age\": \"number\"}")
+let schema = "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"age\":{\"type\":\"integer\"}},\"required\":[\"name\",\"age\"],\"additionalProperties\":false}"
+let format = ("json_schema", schema, "Person")
 let response = structured_chat(client, "Extract name and age", format)
-// JSON 格式输出
+// 严格 JSON Schema 输出
 ```
 
 ### 用例 5: 多轮对话
@@ -521,7 +613,7 @@ openai_sdk/
 │   ├── main.mbt                      # 主程序入口点
 │   ├── utils.mbt                     # 工具函数
 │   ├── examples.mbt                  # 使用示例
-│   ├── openai_test.mbt              # 完整测试套件 (1,497 行)
+│   ├── openai_test.mbt              # 完整测试套件 (605 行)
 │   ├── real_network.mbt             # 真实网络集成层
 │   └── moon.pkg.json                # 包配置
 ├── moon.mod.json                    # 项目配置
@@ -538,20 +630,6 @@ openai_sdk/
 
 • MoonBit 社区: moonbit-community  
 • GitHub Issues: 报告问题  
-
-## 📝 更新日志
-
-### v0.1.0
-- ✅ 实现完整的 OpenAI 聊天完成 API
-- ✅ 支持多种响应模式（标准、流式、工具、结构化）
-- ✅ 与 Go SDK 兼容的接口设计
-- ✅ 健壮的错误处理和重试机制
-- ✅ 多轮对话和上下文管理
-- ✅ 高性能 HTTP 请求处理
-- ✅ 全面的测试套件，57个测试全部通过
-- ✅ 完整的文档和使用示例
-- ✅ 生产就绪的配置管理
-- ✅ 网络库集成准备
 
 ## 🔍 OpenAI API 信息
 

@@ -1,7 +1,8 @@
 {
-  "main": "main.mbt",
-  "is_main": true,
-  "dependencies": {
-    "moonbitlang/core": "0.1.0"
-  }
+  "is-main": true,
+  "import": [
+    "moonbitlang/async",
+    "moonbitlang/async/http",
+    "moonbitlang/async/io"
+  ]
 }

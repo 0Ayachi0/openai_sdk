@@ -1,6 +1,6 @@
 # OpenAI SDK for MoonBit
 
-[![Build Status](https://img.shields.io/github/actions/workflow/status/0Ayachi0/openai_sdk/ci.yml)](https://github.com/0Ayachi0/openai_sdk/actions) [![codecov](https://codecov.io/gh/0Ayachi0/openai_sdk/branch/main/graph/badge.svg)](https://codecov.io/gh/0Ayachi0/openai_sdk)
+[![Build Status](https://img.shields.io/github/actions/workflow/status/0Ayachi0/openai_sdk/ci.yml)](https://github.com/0Ayachi0/openai_sdk/actions) 
 
 [简体中文](README_zh_CN.md) | English
 
@@ -17,7 +17,7 @@ A comprehensive OpenAI SDK implementation in MoonBit language, providing complet
 • 📈 **Production Ready** – Complete configuration management and environment support  
 • 🔍 **Type Safety** – Complete error types with robust type system  
 • 📦 **Network Integration** – Ready for real network library integration  
-• 🧪 **Test Coverage** – Comprehensive test suite with 49 passing tests  
+• 🧪 **Test Coverage** – Comprehensive test suite with 25 passing tests  
 • 📚 **Complete Documentation** – Detailed usage examples and API reference  
 
 ## 📥 Installation
@@ -91,8 +91,9 @@ match tool_result {
         // Process tool response
         println("Message: " + message)
         match tool_call {
-            Some((id, type, function)) => {
-                println("Tool called: " + function)
+            Some((id, type, function_name, arguments)) => {
+                println("Tool called: " + function_name)
+                println("Arguments: " + arguments)
             }
             None => {
                 println("No tool called")
@@ -104,9 +105,10 @@ match tool_result {
     }
 }
 
-// Structured output
-let format = ("json", "object", "{\"name\": \"string\", \"age\": \"number\"}")
-let struct_result = structured_chat(client, "Extract name and age from: John is 25 years old", format)
+// Structured output (json_schema, strict with additionalProperties:false)
+let schema = "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"age\":{\"type\":\"integer\"}},\"required\":[\"name\",\"age\"],\"additionalProperties\":false}"
+let format = ("json_schema", schema, "Person")
+let struct_result = structured_chat(client, "Extract the name and age from: John is 25 years old.", format)
 match struct_result {
     Ok(response) => {
         // Process structured response
@@ -125,7 +127,7 @@ Configure client with custom settings and options.
 // Create client with custom configuration
 let client = new_client_with_config(
     "your-api-key",           // API key
-    "https://api.openai.com", // Base URL
+    "https://api.openai.com/v1", // Base URL
     30,                       // Timeout in seconds
     3,                        // Max retries
     "MoonBit-SDK/1.0",       // User agent
@@ -133,7 +135,7 @@ let client = new_client_with_config(
 )
 
 // Create HTTP client for custom requests
-let http_client = new_http_client("https://api.openai.com")
+let http_client = new_http_client("https://api.openai.com/v1")
 let request = new_http_request(
     "POST",
     "https://api.openai.com/v1/chat/completions",
@@ -153,6 +155,21 @@ match http_result {
         // Handle HTTP error
     }
 }
+```
+
+#### Additional runtime configuration helpers
+
+```moonbit
+// Enable verbose debug logging (request/response snippets)
+let client = enable_debug(client)
+
+// Update timeout and retry attempts at runtime
+let client = set_timeout(client, 60)
+let client = set_retries(client, 5)
+
+// Optional: set organization and project headers
+let client = set_organization(client, "org_123")
+let client = set_project(client, "proj_123")
 ```
 
 ### 🔄 Error Handling
@@ -227,7 +244,9 @@ match result {
         if choices.length() > 0 {
             let choice = choices.get(0)
             match choice {
-                Some((index, message, finish_reason)) => {
+                Some(c) => {
+                    let message = c.1
+                    let finish_reason = c.2
                     let (role, content) = message
                     println("Assistant: " + content)
                     println("Finish reason: " + finish_reason)
@@ -295,7 +314,7 @@ match result {
 pub typealias (String, String, Int) as OpenAIError  // (error_type, message, status_code)
 
 // HTTP error type
-pub typealias (String, String, String) as HttpError  // (error_type, status, message)
+pub typealias (String, Int, String) as HttpError  // (error_type, status_code, message)
 ```
 
 ### Core Types
@@ -303,8 +322,8 @@ pub typealias (String, String, String) as HttpError  // (error_type, status, mes
 // Message type
 pub typealias (String, String) as Message  // (role, content)
 
-// Choice type
-pub typealias (Int, Message, String) as Choice  // (index, message, finish_reason)
+// Choice type (with optional tool_calls)
+pub typealias (Int, Message, String, Option[ToolCall]) as Choice  // (index, message, finish_reason, tool_calls)
 
 // Usage statistics
 pub typealias (Int, Int, Int) as Usage  // (prompt_tokens, completion_tokens, total_tokens)
@@ -313,10 +332,10 @@ pub typealias (Int, Int, Int) as Usage  // (prompt_tokens, completion_tokens, to
 pub typealias (String, String, Int, String, Array[Choice], Usage) as ChatCompletionResponse
 
 // Tool call type
-pub typealias (String, String, String) as ToolCall  // (id, type, function)
+pub typealias (String, String, String, String) as ToolCall  // (id, type, function_name, arguments)
 
 // HTTP client and request types
-pub typealias String as HttpClient
+pub typealias (String, Int, Int, String) as HttpClient  // (base_url, timeout, retries, user_agent)
 pub typealias (String, String, Array[String], String) as HttpRequest  // (method, url, headers, body)
 ```
 
@@ -345,8 +364,9 @@ pub typealias (String, String, Array[String], String) as HttpRequest  // (method
 
 ### Utility Functions
 - `check_network_status()` - Check network connectivity
-- `get_api_key_from_env()` - Get API key from environment
-- `validate_api_key(api_key)` - Validate API key format
+- `json_serialize(value)` - Serialize string to JSON-safe string
+- `json_deserialize(json)` - Validate and normalize JSON
+- `extract_json_field(json, field)` - Extract a top-level field
 
 ## 📈 Performance Characteristics
 
@@ -393,7 +413,7 @@ pub typealias (String, String, Array[String], String) as HttpRequest  // (method
 
 ## 🧪 Test Coverage
 
-Project includes comprehensive test cases with **57 passing tests**:
+Project includes comprehensive test cases with **25 passing tests**:
 - ✅ Basic chat completion functionality tests
 - ✅ Streaming response handling tests
 - ✅ Tool calling and function execution tests
@@ -404,47 +424,118 @@ Project includes comprehensive test cases with **57 passing tests**:
 - ✅ Configuration and client management tests
 
 ### Test Statistics
-- **Total Tests**: 57 tests
-- **Pass Rate**: 100% (57/57 passed)
-- **Test Code Lines**: 1,497 lines
+- **Total Tests**: 25 tests
+- **Pass Rate**: 100% (25/25 passed)
+- **Test Code Lines**: 605 lines
 - **Error Path Coverage**: Comprehensive error handling tests
-- **Network Simulation**: Complete mock network implementation
+- **Network Simulation**: Complete network implementation coverage
 
 ## 🚀 Build and Run
 
 ```bash
-# Build the project
+# Linux/macOS
 moon build
-
-# Run tests
 moon test
-
-# Run main demo
 moon run src/main.mbt
-
-# Generate coverage report
 moon coverage report -f cobertura -o coverage.xml
+
+# Windows (add --target native)
+moon build --target native
+moon test --target native
+moon run --target native src/main.mbt
 ```
+
+### Run the 5 Demo Cases (src/main.mbt)
+
+- **Pass API key**: use one of `--api-key VALUE`, `--key VALUE`, or `-k VALUE` (also supports `--api-key=VALUE`, `--key=VALUE`, `-k=VALUE`).
+- **Optional config flags**: `--base-url VALUE`, `--timeout VALUE` (seconds), `--retries VALUE`.
+- **Argument separator**: when passing program flags after `moon run`, add `--` before your flags.
+
+Run all 5 cases:
+
+```bash
+# Linux/macOS
+moon run src/main.mbt -- --api-key sk-your-api-key
+
+# Windows
+moon run --target native src/main.mbt -- --api-key sk-your-api-key
+```
+
+Run only Case 1 (basic conversation):
+
+```bash
+# Linux/macOS
+moon run src/main.mbt -- --api-key sk-your-api-key --case=1
+
+# Windows
+moon run --target native src/main.mbt -- --api-key sk-your-api-key --case=1
+```
+
+- **Case 1**: Basic conversation (`demo_basic_conversation`)
+- **Case 2**: Streaming response (`demo_streaming_response`)
+- **Case 3**: Tool calling with real tool result handling (`demo_tool_calling`)
+- **Case 4**: Structured output with schema (`demo_structured_output`)
+- **Case 5**: Multi-turn conversation with context (`demo_multi_turn_conversation`)
 
 ## 📦 Dependencies
 
-- `fangyinc/net: 0.1.0`: Network library for HTTP requests
+- `moonbitlang/async: 0.9.0`: Async HTTP and timeout support
 - `moonbitlang/core`: Provides basic data structure support
 
 ## 🌐 Network Integration
 
 ### Current Status
-- **Network Library**: `fangyinc/net: 0.1.0` integrated
-- **Implementation**: Mock network implementation for development
-- **Production Ready**: Ready for real network integration
+- **Network Library**: `moonbitlang/async: 0.9.0` in use
+- **Implementation**: Real HTTP via async/http with timeout and retries
+- **Production Ready**: Production-ready real network integration
 
 ### Production Deployment
 ```moonbit
-// Replace mock implementation with real network calls
-fn perform_real_http_request(host: String, port: Int, request: String, timeout: Int) -> Result[String, HttpError] {
-    // Use fangyinc/net library for real HTTP requests
-    // All API interfaces are fully implemented
+// Real HTTP using async/http
+fn perform_real_http_request(
+    http_method: String,
+    url: String,
+    headers: Array[String],
+    body: String,
+    timeout: Int
+) -> Result[HttpResponse, HttpError] {
+    // Uses moonbitlang/async for real HTTP requests with timeout
 }
+```
+
+### Go-style adapter (optional)
+
+For users familiar with Go SDK conventions, a Go-like adapter is provided.
+
+```moonbit
+// Create client and tweak settings using Go-like helpers
+let client = go_new_client("your-api-key")
+let client = go_with_base_url(client, "https://api.openai.com/v1")
+let client = go_with_timeout(client, 60)
+let client = go_with_retries(client, 5)
+let client = go_with_organization(client, "org_123")
+let client = go_with_project(client, "proj_123")
+
+// Build messages
+let messages = [
+  go_system_message("You are helpful."),
+  go_user_message("Hello")
+]
+
+// Non-streaming chat
+let res = go_chat_completions_create(client, GPT_4O, messages)
+
+// Streaming chat
+let stream_res = go_chat_completions_create_stream(client, GPT_4O, messages)
+
+// With tools
+let tools = ["get_weather"]
+let tool_res = go_chat_completions_create_with_tools(client, GPT_4O, messages, tools)
+
+// Structured output
+let schema = "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"}},\"required\":[\"name\"]}"
+let fmt = go_response_format_json_schema(schema, "Person")
+let structured_res = go_chat_completions_create_structured(client, GPT_4O, messages, fmt)
 ```
 
 ## 🔧 Configuration
@@ -495,9 +586,10 @@ let (response, tool_call) = tool_chat(client, "What's the weather like?", tools)
 
 ### Case 4: Structured Output
 ```moonbit
-let format = ("json", "object", "{\"name\": \"string\", \"age\": \"number\"}")
+let schema = "{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"age\":{\"type\":\"integer\"}},\"required\":[\"name\",\"age\"],\"additionalProperties\":false}"
+let format = ("json_schema", schema, "Person")
 let response = structured_chat(client, "Extract name and age", format)
-// JSON formatted output
+// Strict JSON schema output
 ```
 
 ### Case 5: Multi-turn Conversation
@@ -521,7 +613,7 @@ openai_sdk/
 │   ├── main.mbt                      # Main program entry point
 │   ├── utils.mbt                     # Utility functions
 │   ├── examples.mbt                  # Usage examples
-│   ├── openai_test.mbt              # Complete test suite (1,497 lines)
+│   ├── openai_test.mbt              # Complete test suite (605 lines)
 │   ├── real_network.mbt             # Real network integration layer
 │   └── moon.pkg.json                # Package configuration
 ├── moon.mod.json                    # Project configuration
@@ -538,20 +630,6 @@ This project is licensed under the Apache-2.0 License. See the LICENSE file for 
 
 • MoonBit Community: moonbit-community  
 • GitHub Issues: Report issues  
-
-## 📝 Changelog
-
-### v0.1.0
-- ✅ Implemented complete OpenAI chat completion API
-- ✅ Support for multiple response modes (standard, streaming, tools, structured)
-- ✅ Go SDK-compatible interface design
-- ✅ Robust error handling and retry mechanisms
-- ✅ Multi-turn conversation and context management
-- ✅ High-performance HTTP request processing
-- ✅ Comprehensive test suite with 57 passing tests
-- ✅ Complete documentation and usage examples
-- ✅ Production-ready configuration management
-- ✅ Network library integration preparation
 
 ## 🔍 OpenAI API Information
 
