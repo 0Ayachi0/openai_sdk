@@ -27,11 +27,11 @@ jobs:
 
       - name: Build project
         run: |
-          moon build
+          moon build --target native
 
       - name: Run tests
         run: |
-          moon test
+          moon test --target native
 
       - name: Generate coverage report
         run: |
